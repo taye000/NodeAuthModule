@@ -1,1 +1,1 @@
-A centralized system to deal with the entire process of franchising from the initial contract between the franchisor and franchisee to government approvals to payment of fees to managing the terms of the franchise agreement and conflict resolution.
+A complete authentication module using nodejs, typescript, sendgrid, nodemailer & africa's talking.
