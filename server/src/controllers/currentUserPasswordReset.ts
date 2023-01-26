@@ -1,0 +1,53 @@
+import { Request, Response } from "express";
+import User from "../models/users";
+import { PasswordManager } from "../utils";
+import validator from "validator";
+
+export const currentUserResetPassword = async (req: Request, res: Response) => {
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+  const user = await User.findById(req.user?.id);
+  if (!user) {
+    return res
+      .status(401)
+      .json({ success: false, msg: "Unauthorised access." });
+  }
+  if (validator.isEmpty(currentPassword)) {
+    return res.status(400).json({ newPassword: "New Password is required" });
+  }
+  if (validator.isEmpty(newPassword)) {
+    return res.status(400).json({ newPassword: "New Password is required" });
+  }
+  if (validator.isEmpty(confirmNewPassword)) {
+    return res
+      .status(400)
+      .json({ confirmNewPassword: "confirm New Password is required" });
+  }
+  const isPasswordCorrect = await PasswordManager.compare(
+    currentPassword,
+    user.password
+  );
+  if (!isPasswordCorrect) {
+    return res
+      .status(400)
+      .json({ success: false, msg: "Incorrect current password" });
+  }
+  if (newPassword !== confirmNewPassword) {
+    return res.status(400).json({
+      success: false,
+      msg: "New password and confirm new password Do Not Match.",
+    });
+  }
+  //hashing the updated password
+  let hashedPassword = await PasswordManager.toHash(newPassword);
+
+  user.password = hashedPassword;
+  user.passwordReset = { code: "", is_changed: false };
+
+  //save the hashed updated password to db
+  await user.save();
+
+  return res
+    .status(200)
+    .json({ success: true, msg: "Password updated succesfully." });
+};
