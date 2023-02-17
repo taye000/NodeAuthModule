@@ -16,10 +16,10 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (validator.isEmpty(email)) {
-    return res.status(400).json({ msg: "email is required" });
+    return res.status(400).json({ msg: "Email is required" });
   }
   if (validator.isEmpty(password)) {
-    return res.status(400).json({ msg: "password is required" });
+    return res.status(400).json({ msg: "Password is required" });
   }
 
   const user = await User.findOne({ email });
@@ -65,7 +65,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ msg: "User Not Found", success: false });
     }
-    return res.json({ msg: "Current user found.", user, success: true });
+    return res.json({ msg: "Found current user.", user, success: true });
   } catch (error: any) {
     return res.status(500).json({ msg: "Internal server error" });
   }
