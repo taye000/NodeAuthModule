@@ -60,5 +60,11 @@ export const updateProfile = async (req: Request, res: Response) => {
     },
     { new: true }
   );
-  res.status(200).json({ success: true, msg: "Profile updated successfully" });
+  res
+    .status(200)
+    .json({
+      success: true,
+      msg: "Profile updated successfully",
+      response: updatedUser,
+    });
 };
