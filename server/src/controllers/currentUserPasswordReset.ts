@@ -12,13 +12,15 @@ export const currentUserResetPassword = async (req: Request, res: Response) => {
       .status(401)
       .json({ success: false, msg: "Unauthorised access." });
   }
-  if (validator.isEmpty(currentPassword)) {
+  if (!currentPassword.trim()) {
+    return res
+      .status(400)
+      .json({ newPassword: "Current Password is required" });
+  }
+  if (!newPassword.trim()) {
     return res.status(400).json({ newPassword: "New Password is required" });
   }
-  if (validator.isEmpty(newPassword)) {
-    return res.status(400).json({ newPassword: "New Password is required" });
-  }
-  if (validator.isEmpty(confirmNewPassword)) {
+  if (!confirmNewPassword.trim()) {
     return res
       .status(400)
       .json({ confirmNewPassword: "confirm New Password is required" });
@@ -37,6 +39,17 @@ export const currentUserResetPassword = async (req: Request, res: Response) => {
       success: false,
       msg: "New password and confirm new password Do Not Match.",
     });
+  }
+  //compare new password to the old password
+  const newPasswordNotSameAsOld = await PasswordManager.compare(
+    user.password,
+    newPassword
+  );
+  //check if new password is same as old password
+  if (newPasswordNotSameAsOld) {
+    return res
+      .status(400)
+      .json({ newPassword: "New Password cannot be same as old password" });
   }
   //hashing the updated password
   let hashedPassword = await PasswordManager.toHash(newPassword);
