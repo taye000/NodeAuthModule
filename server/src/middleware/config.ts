@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import mongoSanitize from "express-mongo-sanitize";
 import expressRateLimit from "express-rate-limit";
 import hpp from "hpp";
+
 const xss = require("xss-clean");
 
 export const configureMiddleware = (app: Express) => {
