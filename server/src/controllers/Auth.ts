@@ -4,7 +4,6 @@ import { sign } from "jsonwebtoken";
 import User from "../models/users";
 import { PasswordManager } from "../utils";
 import { config } from "../config/config";
-import validator from "validator";
 
 export const login = async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -15,10 +14,10 @@ export const login = async (req: Request, res: Response) => {
 
   const { email, password } = req.body;
 
-  if (validator.isEmpty(email)) {
+  if (!email.trim()) {
     return res.status(400).json({ msg: "Email is required" });
   }
-  if (validator.isEmpty(password)) {
+  if (!password.trim()) {
     return res.status(400).json({ msg: "Password is required" });
   }
 

@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
 import User from "../models/users";
-import validator from "validator";
 import { randomCode } from "../utils/common";
 import { mailer, sms } from "../helpers";
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
   const { email } = req.body;
-  if (validator.isEmpty(email)) {
+  if (!email.trim()) {
     return res.status(400).json({ email: "email is required" });
   }
   const user = await User.findOne({ email });

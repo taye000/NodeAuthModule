@@ -7,13 +7,13 @@ export const signUp = async (req: any, res: any) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  if (validator.isEmpty(email)) {
+  if (!email.trim()) {
     return res.status(400).json({ email: "email is required" });
   }
   if (!validator.isEmail(email)) {
     return res.status(400).json({ email: "Please enter a valid email" });
   }
-  if (validator.isEmpty(password)) {
+  if (!password.trim()) {
     return res.status(400).json({ password: "Password is required" });
   }
 

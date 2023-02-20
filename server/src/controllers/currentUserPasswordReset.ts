@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/users";
 import { PasswordManager } from "../utils";
-import validator from "validator";
 
 export const currentUserResetPassword = async (req: Request, res: Response) => {
   const { currentPassword, newPassword, confirmNewPassword } = req.body;

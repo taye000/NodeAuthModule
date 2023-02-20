@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/users";
 import { PasswordManager } from "../utils";
-import validator from "validator";
 
 export const passwordReset = async (req: Request, res: Response) => {
   const { code, password, confirmPassword } = req.body;
@@ -10,13 +9,13 @@ export const passwordReset = async (req: Request, res: Response) => {
   if (!user) {
     return res.send({ msg: "Code provided is Not correct." });
   }
-  if (validator.isEmpty(code)) {
+  if (!code.trim()) {
     return res.status(400).json({ code: "Code is required" });
   }
-  if (validator.isEmpty(password)) {
+  if (!password.trim()) {
     return res.status(400).json({ password: "Password is required" });
   }
-  if (validator.isEmpty(confirmPassword)) {
+  if (!confirmPassword.trim()) {
     return res
       .status(400)
       .json({ confirmPassword: "confirm Password is required" });
