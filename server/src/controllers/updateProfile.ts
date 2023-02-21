@@ -29,33 +29,31 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
-  const { name, email, photo } = req.body;
+  const { name, email } = req.body;
 
   const user = await User.findById(req?.userId);
 
   if (!user) {
     return res.send({ msg: "Unauthorized access" });
   }
-
+  //check if user name is valid
+  if (!validator.isLength(name, { min: 3, max: 30 })) {
+    return res.status(400).json({ message: "User name is invalid" });
+  }
+  //check if email is valid
   if (validator.isEmail(email)) {
     return res.send({ msg: "Please provide a valid email" });
   }
 
-  if (email.toLowercase() === user?.email) {
-    return res.send({ msg: "Email provided is same as previous email" });
-  }
-
   const isEmailTaken = await User.findOne({ email });
-
-  if (isEmailTaken) {
-    return res.send({ msg: "Email provided already exists." });
+  if (isEmailTaken && isEmailTaken.id !== req?.userId) {
+    return res.send({ msg: "Email is already taken." });
   }
   const updatedUser = await User.findByIdAndUpdate(
     req?.userId,
     {
       name,
       email,
-      photo,
     },
     { new: true }
   );
