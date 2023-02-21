@@ -14,18 +14,17 @@ const upload = multer({ storage: cloudinaryStorage });
 
 //update profile photo controller
 export const updateProfilePhoto = async (req: Request, res: Response) => {
-  const user = await User.findById(req?.userId);
-  if (!user) {
-    res.send({ msg: "Unauthorized access" });
-  } else {
-    const photo = req?.file?.path;
-    try {
-      await User.findByIdAndUpdate(req?.userId, {
-        photo,
-      });
-    } catch (error) {
-      res.send({ msg: "Error uploading photo" });
+  try {
+    const user = await User.findById(req?.userId);
+    if (!user) {
+      res.send({ msg: "Unauthorized access" });
     }
+    const photo = req?.file?.path;
+    await User.findByIdAndUpdate(req?.userId, {
+      photo,
+    });
+  } catch (error) {
+    res.send({ msg: "Error uploading photo" });
   }
 };
 
@@ -60,11 +59,9 @@ export const updateProfile = async (req: Request, res: Response) => {
     },
     { new: true }
   );
-  res
-    .status(200)
-    .json({
-      success: true,
-      msg: "Profile updated successfully",
-      response: updatedUser,
-    });
+  res.status(200).json({
+    success: true,
+    msg: "Profile updated successfully",
+    response: updatedUser,
+  });
 };
