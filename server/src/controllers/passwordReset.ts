@@ -5,37 +5,34 @@ import { PasswordManager } from "../utils";
 export const passwordReset = async (req: Request, res: Response) => {
   const { code, password, confirmPassword } = req.body;
 
-  const user = await User.findOne({ passwordResetToken: code });
-  if (!user) {
-    return res.send({ msg: "Code provided is Not correct." });
-  }
-  if (!code.trim()) {
-    return res.status(400).json({ code: "Code is required" });
-  }
-  if (!password.trim()) {
-    return res.status(400).json({ password: "Password is required" });
-  }
-  if (!confirmPassword.trim()) {
-    return res
-      .status(400)
-      .json({ confirmPassword: "confirm Password is required" });
-  }
-  //compare password and confirm password
-  if (password !== confirmPassword) {
-    return res.send({ msg: "Password & confirm password Do Not Match!" });
-  }
+  try {
+    const user = await User.findOne({ passwordResetToken: code });
+    if (!user) {
+      return res.send({ msg: "User Not found." });
+    }
+    //compare password and confirm password
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ msg: "Password & confirm password Do Not Match!" });
+    }
 
-  //hash updated password before saving to db
-  let hashedPassword = await PasswordManager.toHash(password);
+    //hash updated password before saving to db
+    const hashedPassword = await PasswordManager.toHash(password);
 
-  user.password = hashedPassword;
-  user.passwordReset = { code: "", is_changed: false };
+    user.password = hashedPassword;
+    user.passwordReset = { code: "", is_changed: false };
 
-  //save the hashed updated password to db
-  await user.save();
-  res.status(201).json({
-    success: true,
-    user: user,
-    msg: "Password reset successfully",
-  });
+    //save the hashed updated password to db
+    await user.save();
+    res.status(201).json({
+      success: true,
+      user: user,
+      msg: "Password reset successfully",
+    });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ msg: "Internal server error", success: false, error });
+  }
 };

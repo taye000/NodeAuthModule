@@ -1,6 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { verify } from "jsonwebtoken";
+import {
+  verify,
+  JsonWebTokenError,
+  TokenExpiredError,
+  JwtPayload,
+} from "jsonwebtoken";
 import { config } from "../config";
+
+interface UserPayload extends JwtPayload {
+  user: string;
+}
 
 export const validateToken = (
   req: Request,
@@ -15,19 +24,18 @@ export const validateToken = (
     return res.status(401).json({ msg: "Unauthorised access", success: false });
   }
   try {
-    verify(accessToken, config.JWT_SECRET, (error: any, decodedData: any) => {
-      if (error || !decodedData) {
-        console.log("error decoding data");
-        return res
-          .status(401)
-          .json({ msg: "Unauthorised access", success: false });
-      } else {
-        req.userId = decodedData?.user || decodedData;
-        next();
-      }
-    });
+    const payload = verify(accessToken, config.JWT_SECRET) as UserPayload;
+
+    req.userId = payload?.user || payload;
+    next();
   } catch (error: any) {
+    if (
+      error instanceof JsonWebTokenError ||
+      error instanceof TokenExpiredError
+    ) {
+      return res.status(401).json({ msg: "Invalid Token", success: false });
+    }
     console.error("Internal auth error");
-    res.status(500).json({ msg: "Internal auth error" });
+    res.status(500).json({ msg: "Internal auth error", error });
   }
 };
