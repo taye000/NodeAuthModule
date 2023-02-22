@@ -45,6 +45,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     return res.send({ msg: "Please provide a valid email" });
   }
 
+  //check if email is already taken by another user
   const isEmailTaken = await User.findOne({ email });
   if (isEmailTaken && isEmailTaken.id !== req?.userId) {
     return res.send({ msg: "Email is already taken." });
