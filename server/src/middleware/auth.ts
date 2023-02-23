@@ -8,7 +8,8 @@ import {
 import { config } from "../config";
 
 interface UserPayload extends JwtPayload {
-  user: string;
+  user?: string;
+  email?: string;
 }
 
 export const validateToken = (
@@ -26,7 +27,7 @@ export const validateToken = (
   try {
     const payload = verify(accessToken, config.JWT_SECRET) as UserPayload;
 
-    req.userId = payload?.user || payload;
+    req.userId = payload?.user || payload.email;
     next();
   } catch (error: any) {
     if (
