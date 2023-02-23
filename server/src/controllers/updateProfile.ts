@@ -15,7 +15,7 @@ const upload = multer({ storage: cloudinaryStorage });
 //update profile photo controller
 export const updateProfilePhoto = async (req: Request, res: Response) => {
   try {
-    const user = await User.findById(req?.userId);
+    const user = await User.findOne({ $or: [{ email: req?.body?.email }] });
     if (!user) {
       res.send({ msg: "Unauthorized access" });
     }
@@ -31,7 +31,7 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
 export const updateProfile = async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
-  const user = await User.findById(req?.userId);
+  const user = await User.findOne({ $or: [{ email: req?.body?.email }] });
 
   if (!user) {
     return res.send({ msg: "Unauthorized access" });
