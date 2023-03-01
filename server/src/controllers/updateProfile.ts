@@ -17,7 +17,7 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ $or: [{ email: req?.body?.email }] });
     if (!user) {
-      res.send({ msg: "Unauthorized access" });
+      res.status(401).json({ msg: "Unauthorized access" });
     }
     const photo = req?.file?.path;
     await User.findByIdAndUpdate(req?.userId, {
@@ -34,7 +34,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   const user = await User.findOne({ $or: [{ email: req?.body?.email }] });
 
   if (!user) {
-    return res.send({ msg: "Unauthorized access" });
+    return res.status(401).json({ msg: "Unauthorized access" });
   }
   //check if user name is valid
   if (!validator.isLength(name, { min: 3, max: 30 })) {
