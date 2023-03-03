@@ -18,6 +18,7 @@ const Main = async () => {
   //set up routes
   configureRoutes(app);
 
+  //start server
   const httpServer = createServer(app);
   httpServer.listen(config.PORT || 5000, () => {
     console.log(`Server started at port ${config.PORT}`, httpServer.address());
