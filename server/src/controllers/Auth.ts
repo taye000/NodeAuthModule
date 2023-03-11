@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { sign } from "jsonwebtoken";
 import User from "../models/users";
-import { PasswordManager } from "../utils";
+import { PasswordManager, randomCode } from "../utils";
 import { config } from "../config/config";
+import { mailer, sms } from "../helpers";
 
 export const login = async (req: Request, res: Response) => {
   const errors = validationResult(req);
@@ -25,16 +26,47 @@ export const login = async (req: Request, res: Response) => {
   if (!user) {
     return res.status(404).json({ msg: "Email Not Found", success: false });
   }
-  //check password
-  const passwordMatch = await PasswordManager.compare(user.password, password);
-
-  if (!passwordMatch) {
-    return res.status(400).json({ msg: "Password Incorrect" });
-  }
-  /*TODO: 
-  Verify user by sending otp to email and phone number
-  */
   try {
+    //check password
+    const passwordMatch = await PasswordManager.compare(
+      user.password,
+      password
+    );
+    if (!passwordMatch) {
+      return res.status(400).json({ msg: "Password Incorrect" });
+    }
+    //generate otp
+    const otp = await randomCode();
+    //update user otp
+    user.passwordResetToken = otp;
+    //save user
+    await user.save();
+    //send otp via email
+    mailer(otp, user.email);
+    //send otp via sms
+    sms(otp, user.phoneNumber);
+    res.status(200).json({
+      msg: "Successful accessed your account, use OTP sent to your email & phone to proceed.",
+      success: true,
+    });
+  } catch (error: any) {
+    res.status(500).json({ msg: "Internal server error", success: false });
+  }
+};
+
+//Verify user login by otp
+export const verifyUserByOTP = async (req: Request, res: Response) => {
+  const { otp } = req.body;
+
+  if (!otp.trim()) {
+    return res.status(400).json({ msg: "otp is required" });
+  }
+  try {
+    //check if otp matches the user otp
+    const user = await User.findOne({ otp });
+    if (!user) {
+      return res.status(400).json({ msg: "OTP does not match" });
+    }
     //generate token
     const payload = {
       email: user.email,
@@ -55,20 +87,6 @@ export const login = async (req: Request, res: Response) => {
       msg: "User signed in successfully",
       success: true,
     });
-  } catch (error: any) {
-    res.status(500).json({ msg: "Internal server error", success: false });
-  }
-};
-
-//Verify user login by otp
-export const verifyUserByOTP = async (req: Request, res: Response) => {
-  const { otp } = req.body;
-  try {
-    //check if otp matches the user otp
-    const user = await User.findOne({ otp });
-    if (!user) {
-      return res.status(400).json({ msg: "OTP does not match" });
-    }
   } catch (error: any) {
     res.status(500).json({ msg: "Internal server error", success: false });
   }

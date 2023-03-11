@@ -5,10 +5,10 @@ const client = new Client({
   username: process.env.AFRICASTALKING_USERNAME!,
 });
 
-export const sms = async (code: any) => {
+export const sms = async (code: any, phoneNumber: any) => {
   client
     .sendSms({
-      to: ["+254712069869"],
+      to: [phoneNumber],
       message: code,
     })
     .then((response) => console.log("sms sent", response))
