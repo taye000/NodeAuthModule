@@ -31,6 +31,9 @@ export const login = async (req: Request, res: Response) => {
   if (!passwordMatch) {
     return res.status(400).json({ msg: "Password Incorrect" });
   }
+  /*TODO: 
+  Verify user by sending otp to email and phone number
+  */
   try {
     //generate token
     const payload = {
@@ -52,6 +55,20 @@ export const login = async (req: Request, res: Response) => {
       msg: "User signed in successfully",
       success: true,
     });
+  } catch (error: any) {
+    res.status(500).json({ msg: "Internal server error", success: false });
+  }
+};
+
+//Verify user login by otp
+export const verifyUserByOTP = async (req: Request, res: Response) => {
+  const { otp } = req.body;
+  try {
+    //check if otp matches the user otp
+    const user = await User.findOne({ otp });
+    if (!user) {
+      return res.status(400).json({ msg: "OTP does not match" });
+    }
   } catch (error: any) {
     res.status(500).json({ msg: "Internal server error", success: false });
   }

@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import User from "../models/users";
-import { PasswordManager } from "../utils";
 
 export const passwordReset = async (req: Request, res: Response) => {
   const { code, password, confirmPassword } = req.body;
@@ -17,14 +16,12 @@ export const passwordReset = async (req: Request, res: Response) => {
         .json({ msg: "Password & confirm password Do Not Match!" });
     }
 
-    //hash updated password before saving to db
-    const hashedPassword = await PasswordManager.toHash(password);
-
-    user.password = hashedPassword;
+    user.password = password;
     user.passwordReset = { code: "", is_changed: false };
 
-    //save the hashed updated password to db
+    //save the updated password to db
     await user.save();
+
     res.status(201).json({
       success: true,
       user: user,
