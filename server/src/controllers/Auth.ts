@@ -7,11 +7,6 @@ import { config } from "../config/config";
 import { mailer, sms } from "../helpers";
 
 export const login = async (req: Request, res: Response) => {
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
 
   const { email, password } = req.body;
 
@@ -38,7 +33,14 @@ export const login = async (req: Request, res: Response) => {
     //generate otp
     const otp = await randomCode();
     //update user otp
-    user.passwordResetToken = otp;
+    const updatedUser = await User.findByIdAndUpdate(
+      user?.id,
+      {
+        passwordReset: { is_changed: true },
+        passwordResetToken: otp,
+      },
+      { new: true }
+    );
     //save user
     await user.save();
     //send otp via email
@@ -46,6 +48,7 @@ export const login = async (req: Request, res: Response) => {
     //send otp via sms
     sms(otp, user.phoneNumber);
     res.status(200).json({
+      user: updatedUser,
       msg: "Successful accessed your account, use OTP sent to your email & phone to proceed.",
       success: true,
     });
@@ -55,11 +58,11 @@ export const login = async (req: Request, res: Response) => {
 };
 
 //Verify user login by otp
-export const verifyUserByOTP = async (req: Request, res: Response) => {
+export const verifyUserLoginByOTP = async (req: Request, res: Response) => {
   const { otp } = req.body;
 
   if (!otp.trim()) {
-    return res.status(400).json({ msg: "otp is required" });
+    return res.status(400).json({ msg: "OTP is required" });
   }
   try {
     //check if otp matches the user otp
