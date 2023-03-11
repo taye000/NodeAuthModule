@@ -37,7 +37,7 @@ export const login = async (req: Request, res: Response) => {
       user?.id,
       {
         passwordReset: { is_changed: true },
-        passwordResetToken: otp,
+        otp: otp,
       },
       { new: true }
     );

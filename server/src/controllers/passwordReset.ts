@@ -5,7 +5,7 @@ export const passwordReset = async (req: Request, res: Response) => {
   const { code, password, confirmPassword } = req.body;
 
   try {
-    const user = await User.findOne({ passwordResetToken: code });
+    const user = await User.findOne({ otp: code });
     if (!user) {
       return res.send({ msg: "User Not found." });
     }
@@ -17,7 +17,8 @@ export const passwordReset = async (req: Request, res: Response) => {
     }
 
     user.password = password;
-    user.passwordReset = { code: "", is_changed: false };
+    user.otp = "";
+    user.passwordReset = { is_changed: false };
 
     //save the updated password to db
     await user.save();

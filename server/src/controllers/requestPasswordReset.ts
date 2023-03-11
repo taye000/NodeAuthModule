@@ -19,7 +19,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
       user?.id,
       {
         passwordReset: { is_changed: true },
-        passwordResetToken: code,
+        otp: code,
       },
       { new: true }
     );

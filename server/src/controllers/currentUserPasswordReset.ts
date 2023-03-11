@@ -55,7 +55,8 @@ export const currentUserResetPassword = async (req: Request, res: Response) => {
     let hashedPassword = await PasswordManager.toHash(newPassword);
 
     user.password = hashedPassword;
-    user.passwordReset = { code: "", is_changed: false };
+    user.otp = "";
+    user.passwordReset = { is_changed: false };
 
     //save the hashed updated password to db
     await user.save();

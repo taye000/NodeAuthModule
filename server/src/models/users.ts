@@ -43,11 +43,8 @@ const UserSchema = new Schema<IUser, UserModel>(
       is_changed: {
         type: Boolean,
       },
-      code: {
-        type: String,
-      },
     },
-    passwordResetToken: {
+    otp: {
       type: String,
     },
   },
@@ -66,7 +63,7 @@ const UserSchema = new Schema<IUser, UserModel>(
 //pre save hook to hash password before it is saved to db
 UserSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
-    console.log("Changed");
+    console.log("Password Changed");
     const hashedPassword = await PasswordManager.toHash(this.get("password"));
     this.set("password", hashedPassword);
   }
