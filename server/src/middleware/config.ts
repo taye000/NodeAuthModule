@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import mongoSanitize from "express-mongo-sanitize";
 import expressRateLimit from "express-rate-limit";
 import hpp from "hpp";
+import cookieSession from "cookie-session";
 
 const xss = require("xss-clean");
 
@@ -23,6 +24,16 @@ export const configureMiddleware = (app: Express) => {
 
   //enable cors
   app.use(cors());
+
+  //cookie session
+  app.use(
+    cookieSession({
+      signed: true,
+      secure: false,
+      keys: ["key1", "key2"],
+      maxAge: 24 * 60 * 60 * 1000, //24 hours
+    })
+  );
 
   //prevent xss attacks
   app.use(xss());

@@ -29,12 +29,12 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     await mailer(code, email);
 
     //send code via sms
-    sms(code, user.phoneNumber);
+    // sms(code, user.phoneNumber);
 
     res.status(201).json({
-      user: updatedUser,
-      msg: "Password reset code successfully sent to your email & phone.",
       success: true,
+      msg: "Password reset code successfully sent to your email & phone.",
+      user: updatedUser,
     });
   } catch (error: any) {
     res.status(409).json({ error: error.message });

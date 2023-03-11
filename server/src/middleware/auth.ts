@@ -6,11 +6,7 @@ import {
   JwtPayload,
 } from "jsonwebtoken";
 import { config } from "../config";
-
-interface UserPayload extends JwtPayload {
-  user?: string;
-  email?: string;
-}
+import { UserPayload } from "../@types";
 
 export const validateToken = (
   req: Request,

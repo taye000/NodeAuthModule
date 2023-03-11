@@ -23,6 +23,9 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
     await User.findByIdAndUpdate(req?.userId, {
       photo,
     });
+    res
+      .status(200)
+      .json({ success: true, msg: "Profile photo updated successfully" });
   } catch (error) {
     res.send({ msg: "Error uploading photo" });
   }

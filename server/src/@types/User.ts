@@ -1,3 +1,5 @@
+import { JwtPayload } from "jsonwebtoken";
+
 export interface IUser {
   id?: string;
   name: string;
@@ -12,4 +14,18 @@ export interface IUser {
   passwordReset?: {
     is_changed: boolean;
   };
+}
+
+export interface UserPayload extends JwtPayload {
+  email: string;
+  phoneNumber?: string;
+  name?: string;
+  is_active?: boolean;
+}
+declare global {
+  namespace Express {
+    interface Request {
+      currentUser?: UserPayload;
+    }
+  }
 }

@@ -7,7 +7,6 @@ import { config } from "../config/config";
 import { mailer, sms } from "../helpers";
 
 export const login = async (req: Request, res: Response) => {
-
   const { email, password } = req.body;
 
   if (!email.trim()) {
@@ -43,14 +42,18 @@ export const login = async (req: Request, res: Response) => {
     );
     //save user
     await user.save();
+
     //send otp via email
-    mailer(otp, user.email);
+    // mailer(otp, user.email);
+
     //send otp via sms
-    sms(otp, user.phoneNumber);
+    // sms(otp, user.phoneNumber);
+
     res.status(200).json({
-      user: updatedUser,
-      msg: "Successful accessed your account, use OTP sent to your email & phone to proceed.",
+      otp,
       success: true,
+      msg: "Successful accessed your account, use OTP sent to your email & phone to proceed.",
+      user: updatedUser,
     });
   } catch (error: any) {
     res.status(500).json({ msg: "Internal server error", success: false });
@@ -70,11 +73,13 @@ export const verifyUserLoginByOTP = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({ msg: "OTP does not match" });
     }
-    //generate token
+    //payload for generating jwt token
     const payload = {
-      email: user.email,
       id: user.id,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
     };
+    //generate token
     const token = sign(payload, config.JWT_SECRET, {
       expiresIn: config.JWT_SECRET_EXPIRY,
     });
@@ -85,10 +90,10 @@ export const verifyUserLoginByOTP = async (req: Request, res: Response) => {
     };
 
     res.status(200).send({
-      user,
-      cookie: req.session?.jwt,
-      msg: "User signed in successfully",
       success: true,
+      msg: "User signed in successfully",
+      cookie: req.session?.jwt,
+      user,
     });
   } catch (error: any) {
     res.status(500).json({ msg: "Internal server error", success: false });
@@ -102,7 +107,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ msg: "User Not Found", success: false });
     }
-    return res.json({ msg: "Found current user.", user, success: true });
+    return res.json({ msg: "Found current user.", success: true, user });
   } catch (error: any) {
     return res.status(500).json({ msg: "Internal server error" });
   }
